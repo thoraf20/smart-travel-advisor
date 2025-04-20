@@ -8,6 +8,7 @@ import (
 	"github.com/thoraf20/smart-travel-advisor/config"
 	"github.com/thoraf20/smart-travel-advisor/internal/auth"
 	"github.com/thoraf20/smart-travel-advisor/internal/db"
+	favorite "github.com/thoraf20/smart-travel-advisor/internal/favourite"
 	traveladvice "github.com/thoraf20/smart-travel-advisor/internal/travelAdvice"
 	"github.com/thoraf20/smart-travel-advisor/internal/user"
 )
@@ -23,6 +24,7 @@ func main() {
 	auth.RegisterAuthRoutes(r)
 	user.UserRoutes(r)
 	traveladvice.TravelAdviceRoutes(r)
+	favorite.FavoriteRoutes(r)
 
 	log.Println("🚀 Starting server on port", viper.GetString("PORT"))
 	r.Run(":" + viper.GetString("PORT"))

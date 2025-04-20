@@ -23,6 +23,7 @@ func InitDB() {
 	err = DB.AutoMigrate(&models.User{})
 	_ = DB.AutoMigrate(&models.TravelAdvice{})
 	_ = DB.AutoMigrate(&models.TravelAdvice{})
+	_ = DB.AutoMigrate(&models.Favorite{})
 	if err != nil {
 		log.Fatalf("❌ Failed to auto-migrate: %v", err)
 	}
