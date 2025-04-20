@@ -19,25 +19,23 @@ func RegisterHandler(c *gin.Context) {
 	req, err := binding.StrictBindJSON[RegisterRequest](c)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		response.Error(c, http.StatusBadRequest, "Validation error", err.Error())
 		return
 	}
 
 	var existing models.User
 	if err := db.DB.Where("email = ?", req.Email).First(&existing).Error; 
 	err == nil {
-		c.JSON(http.StatusConflict, gin.H{"error": "Email already registered"})
+		response.Error(c, http.StatusConflict, "Email already registered")
 		return
 	}
 
-	// Hash password
 	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error hashing password"})
+		response.Error(c, http.StatusInternalServerError, "Error hashing password", err.Error())
 		return
 	}
 
-	// Insert new user
 	newUser := models.User{
 		ID:           uuid.New().String(),
 		Email:        req.Email,
@@ -49,56 +47,56 @@ func RegisterHandler(c *gin.Context) {
 
 	if err := db.DB.Create(&newUser).Error; 
 	err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		response.Error(c, http.StatusInternalServerError, "Failed to create user", err.Error())
 		return
 	}
-
-	c.JSON(http.StatusCreated, gin.H{
-		"message": "User registered successfully",
-		"user_id": newUser.ID,
-	})
+	response.Created(c, "User registered successfully", gin.H{"user_id": newUser.ID})
 }
 
 func LoginHandler(c *gin.Context) {
 	var req *LoginRequest
 	req, err := binding.StrictBindJSON[LoginRequest](c)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		response.Error(c, http.StatusBadRequest, "Validation error", err.Error())
 		return
 	}
 
 	var user *models.User
 	if err := db.DB.Where("email = ?", req.Email).First(&user).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		response.Error(c, http.StatusUnauthorized, "Invalid credentials")
 		return
 	}
 
 	// Compare password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); 
 	err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		response.Error(c, http.StatusUnauthorized, "Invalid credentials")
 		return
 	}
 
 	// Generate JWT
 	token, err := utils.GenerateToken(user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		response.Error(c, http.StatusInternalServerError, "Failed to generate token")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Login successful",
-		"token":   token,
-	})
+	response.Success(c, "Login successful", gin.H{"token": token})
 }
 
 func GetAccount(c *gin.Context) {
 	userID := c.MustGet("userID").(string)
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Welcome to your account!",
-		"user_id": userID,
+	var user models.User
+	if err := db.DB.First(&user, "id = ?", userID).Error; err != nil {
+		response.Error(c, http.StatusNotFound, "User not found")
+		return
+	}
+
+	response.Success(c, "Account retrieved successfully", gin.H{
+		"user_id": user.ID,
+		"email":   user.Email,
+		"name":    user.Name,
 	})
 }
 
@@ -107,14 +105,13 @@ func UpdateAccount(c *gin.Context) {
 
 	req, err := binding.StrictBindJSON[UpdateAccountRequest](c)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		response.Error(c, http.StatusBadRequest, "Validation error", err.Error())
 		return
 	}
 
 	var user models.User
-	if err := db.DB.First(&user, "id = ?", userID).Error; 
-	err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+	if err := db.DB.First(&user, "id = ?", userID).Error; err != nil {
+		response.Error(c, http.StatusNotFound, "User not found")
 		return
 	}
 
@@ -126,9 +123,8 @@ func UpdateAccount(c *gin.Context) {
 	}
 	user.UpdatedAt = time.Now().Local().String()
 
-	if err := db.DB.Save(&user).Error; 
-	err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update account"})
+	if err := db.DB.Save(&user).Error; err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to update account")
 		return
 	}
 
@@ -138,9 +134,8 @@ func UpdateAccount(c *gin.Context) {
 func DeleteAccount(c *gin.Context) {
 	userID := c.MustGet("userID").(string)
 
-	if err := db.DB.Delete(&models.User{}, "id = ?", userID).Error; 
-	err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete account"})
+	if err := db.DB.Delete(&models.User{}, "id = ?", userID).Error; err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to delete account")
 		return
 	}
 
