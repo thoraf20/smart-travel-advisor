@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"github.com/thoraf20/smart-travel-advisor/config"
+	"github.com/thoraf20/smart-travel-advisor/internal/auth"
 	"github.com/thoraf20/smart-travel-advisor/internal/db"
 )
 
@@ -18,6 +19,7 @@ func main() {
 	r := gin.Default()
 
 	// TODO: Setup routes
+	auth.RegisterAuthRoutes(r)
 
 	log.Println("🚀 Starting server on port", viper.GetString("PORT"))
 	r.Run(":" + viper.GetString("PORT"))

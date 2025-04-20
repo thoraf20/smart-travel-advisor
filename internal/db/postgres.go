@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/spf13/viper"
+	"github.com/thoraf20/smart-travel-advisor/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -18,5 +19,11 @@ func InitDB() {
 	if err != nil {
 		log.Fatalf("❌ Failed to connect to database: %v", err)
 	}
+
+	err = DB.AutoMigrate(&models.User{})
+	if err != nil {
+		log.Fatalf("❌ Failed to auto-migrate: %v", err)
+	}
+
 	log.Println("✅ Connected to PostgreSQL")
 }
