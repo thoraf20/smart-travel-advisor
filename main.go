@@ -6,13 +6,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"github.com/thoraf20/smart-travel-advisor/config"
-	"github.com/thoraf20/smart-travel-advisor/pkg/firebase"
+	"github.com/thoraf20/smart-travel-advisor/internal/db"
 )
 
 func main() {
+
 	config.LoadConfig()
 
-	firebase.InitFirebase()
+	db.InitDB()
 
 	r := gin.Default()
 
