@@ -8,6 +8,7 @@ import (
 	"github.com/thoraf20/smart-travel-advisor/config"
 	"github.com/thoraf20/smart-travel-advisor/internal/auth"
 	"github.com/thoraf20/smart-travel-advisor/internal/db"
+	"github.com/thoraf20/smart-travel-advisor/internal/user"
 )
 
 func main() {
@@ -18,8 +19,8 @@ func main() {
 
 	r := gin.Default()
 
-	// TODO: Setup routes
 	auth.RegisterAuthRoutes(r)
+	user.UserRoutes(r)
 
 	log.Println("🚀 Starting server on port", viper.GetString("PORT"))
 	r.Run(":" + viper.GetString("PORT"))
