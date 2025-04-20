@@ -8,6 +8,6 @@ func RegisterAuthRoutes(r *gin.Engine) {
 	auth := r.Group("api/v1/auth")
 	auth.POST("/signup", RegisterHandler)
 	auth.POST("/login", LoginHandler)
-	auth.POST("/password/reset/request", ResetPasswordRequestHandler)
-	auth.POST("/password/reset", PasswordResetRequestHandler)
+	auth.POST("/password/reset/request", PasswordResetRequestHandler)
+	auth.POST("/password/reset", ResetPasswordRequestHandler)
 }

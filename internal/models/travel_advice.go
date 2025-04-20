@@ -11,7 +11,7 @@ type TravelAdvice struct {
 	UserID    uuid.UUID `gorm:"type:uuid;not null;index"`
 	StartDate time.Time
 	EndDate   time.Time
-	Cities    []byte `gorm:"type:jsonb"` // array of city IDs
-	Advice    []byte `gorm:"type:jsonb"` // structured advice response
+	Cities    []byte `gorm:"type:jsonb"`
+	Advice    []byte `gorm:"type:jsonb"`
 	CreatedAt time.Time
 }

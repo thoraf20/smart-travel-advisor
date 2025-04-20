@@ -24,7 +24,8 @@ func AddFavorite(c *gin.Context) {
 
 	// Optional: verify travel advice exists
 	var advice models.TravelAdvice
-	if err := db.DB.First(&advice, "id = ? AND user_id = ?", req.TravelAdviceID, userID).Error; err != nil {
+	if err := db.DB.First(&advice, "id = ? AND user_id = ?", req.TravelAdviceID, userID).Error; 
+	err != nil {
 		response.Error(c, http.StatusNotFound, "Travel advice not found")
 		return
 	}
@@ -36,7 +37,8 @@ func AddFavorite(c *gin.Context) {
 		CreatedAt:      time.Now(),
 	}
 
-	if err := db.DB.Create(&favorite).Error; err != nil {
+	if err := db.DB.Create(&favorite).Error; 
+	err != nil {
 		response.Error(c, http.StatusInternalServerError, "Failed to save favorite")
 		return
 	}
@@ -56,7 +58,8 @@ func GetFavorites(c *gin.Context) {
 	var results []gin.H
 	for _, fav := range favorites {
 		var advice models.TravelAdvice
-		if err := db.DB.First(&advice, "id = ?", fav.TravelAdviceID).Error; err != nil {
+		if err := db.DB.First(&advice, "id = ?", fav.TravelAdviceID).Error; 
+		err != nil {
 			continue // skip invalid refs
 		}
 

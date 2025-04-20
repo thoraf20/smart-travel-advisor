@@ -6,7 +6,7 @@ import (
 )
 
 func FavoriteRoutes(r *gin.Engine) {
-	fav := r.Group("/favorites")
+	fav := r.Group("/api/v1/favorites")
 	fav.Use(middleware.AuthMiddleware())
 	{
 		fav.POST("", AddFavorite)

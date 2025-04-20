@@ -6,7 +6,7 @@ import (
 )
 
 func TravelAdviceRoutes(r *gin.Engine) {
-	advice := r.Group("/travel-advice")
+	advice := r.Group("/api/v1/travel-advice")
 	advice.Use(middleware.AuthMiddleware())
 	{
 		advice.POST("", CreateTravelAdvice)

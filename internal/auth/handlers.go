@@ -104,37 +104,42 @@ func PasswordResetRequestHandler(c *gin.Context) {
 	response.Success(c, "Password reset request processed", gin.H{"message": "use this static code for password reset", "reset code": "123456"})
 	}
 
-	func ResetPasswordRequestHandler(c *gin.Context) {
-		var req *ResetPasswordRequest
+func ResetPasswordRequestHandler(c *gin.Context) {
+	var req *ResetPasswordRequest
 
-		req, err := binding.StrictBindJSON[ResetPasswordRequest](c)
-		if err != nil {
-			response.Error(c, http.StatusBadRequest, "Validation error", err.Error())
-			return
-		}
-
-		userID := c.MustGet("userID").(string)
-
-		var user *models.User
-		if err := db.DB.Where("id = ?", userID).First(&user).Error; err != nil {
-			response.Error(c, http.StatusNotFound, "User not found")
-			return
-		}
-
-		hash, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
-		if err != nil {
-			response.Error(c, http.StatusInternalServerError, "Error hashing new password", err.Error())
-			return
-		}
-
-		user.PasswordHash = string(hash)
-		user.UpdatedAt = time.Now().Format(time.RFC3339)
-
-		if err := db.DB.Save(&user).Error;
-		 err != nil {
-			response.Error(c, http.StatusInternalServerError, "Failed to update password", err.Error())
-			return
-		}
-
-		response.Success(c, "Password updated successfully", gin.H{"message": "Password updated successfully"})
+	req, err := binding.StrictBindJSON[ResetPasswordRequest](c)
+	if err != nil {
+		response.Error(c, http.StatusBadRequest, "Validation error", err.Error())
+		return
 	}
+
+	code := req.Code
+	if code != "123456" {
+		response.Error(c, http.StatusBadRequest, "Invalid reset code")
+		return
+	}
+
+	var user *models.User
+	if err := db.DB.Where("email = ?", req.Email).First(&user).Error; 
+	err != nil {
+		response.Error(c, http.StatusNotFound, "User not found")
+		return
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Error hashing new password", err.Error())
+		return
+	}
+
+	user.PasswordHash = string(hash)
+	user.UpdatedAt = time.Now().Format(time.RFC3339)
+
+	if err := db.DB.Save(&user).Error;
+		err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to update password", err.Error())
+		return
+	}
+
+	response.Success(c, "Password updated successfully", gin.H{"message": "Password updated successfully"})
+}
