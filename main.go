@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"github.com/thoraf20/smart-travel-advisor/config"
+	"github.com/thoraf20/smart-travel-advisor/internal/admin"
 	"github.com/thoraf20/smart-travel-advisor/internal/auth"
 	"github.com/thoraf20/smart-travel-advisor/internal/city"
 	"github.com/thoraf20/smart-travel-advisor/internal/db"
@@ -29,6 +30,7 @@ func main() {
 	favorite.FavoriteRoutes(r)
 	city.RegisterCityRoutes(r)
 	preferences.RegisterPreferencesRoutes(r)
+	admin.RegisterAdminRoutes(r)
 
 	log.Println("🚀 Starting server on port", viper.GetString("PORT"))
 	r.Run(":" + viper.GetString("PORT"))
