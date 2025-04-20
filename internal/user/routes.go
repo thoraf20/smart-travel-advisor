@@ -7,7 +7,7 @@ import (
 
 func UserRoutes(r *gin.Engine) {
 
-	account := r.Group("api/v1/account")
+	account := r.Group("api/v1/user/account")
 	account.Use(middleware.AuthMiddleware())
 	{
 		account.GET("", GetAccountQuota)
