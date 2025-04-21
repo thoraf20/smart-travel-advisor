@@ -1,0 +1,29 @@
+name: Run Go Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧾 Checkout Code
+        uses: actions/checkout@v3
+
+      - name: ⚙️ Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.21
+
+      - name: 📦 Install dependencies
+        run: go mod tidy
+
+      - name: ✅ Run Go Vet
+        run: go vet ./...
+
+      - name: 🧪 Run Tests with SQLite in-memory
+        run: go test -v ./...
