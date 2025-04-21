@@ -15,8 +15,16 @@ import (
 	traveladvice "github.com/thoraf20/smart-travel-advisor/internal/travelAdvice"
 	"github.com/thoraf20/smart-travel-advisor/internal/user"
 	cache "github.com/thoraf20/smart-travel-advisor/internal/cache"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
+	// _ "smart-travel-advisor/docs"
 )
 
+// @title Smart Travel Advisor API
+// @version 1.0
+// @description Backend for smart travel planning and recommendations
+// @host localhost:2003
+// @BasePath /
 func main() {
 
 	config.LoadConfig()
@@ -25,6 +33,8 @@ func main() {
 	cache.InitRedis()
 
 	r := gin.Default()
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	auth.RegisterAuthRoutes(r)
 	user.UserRoutes(r)

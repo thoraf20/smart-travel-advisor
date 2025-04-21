@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/go-resty/resty/v2"
+	"github.com/spf13/viper"
 	"github.com/thoraf20/smart-travel-advisor/internal/cache"
 )
 
@@ -23,7 +23,7 @@ type WeatherResponse struct {
 }
 
 func GetWeather(cityName string) (*WeatherResponse, error) {	
-	apiKey := os.Getenv("WEATHER_API_KEY")
+	apiKey := viper.GetString("WEATHER_API_KEY")
 	url := fmt.Sprintf("https://api.openweathermap.org/data/2.5/weather?q=%s&units=metric&appid=%s", cityName, apiKey)
 
 	cacheKey := "weather:" + cityName

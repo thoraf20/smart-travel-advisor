@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/go-resty/resty/v2"
+	"github.com/spf13/viper"
 	"github.com/thoraf20/smart-travel-advisor/internal/cache"
 )
 
@@ -33,7 +33,7 @@ type FlightResponse struct {
 }
 
 func GetFlightsArrivingInCity(cityName string) ([]FlightData, error) {
-	apiKey := os.Getenv("FLIGHT_API_KEY")
+	apiKey := viper.GetString("FLIGHT_API_KEY")
 	url := fmt.Sprintf("http://api.aviationstack.com/v1/flights?access_key=%s&arr_iata=%s&limit=3", apiKey, cityName)
 
 	cacheKey := "flights:" + cityName
@@ -51,6 +51,8 @@ func GetFlightsArrivingInCity(cityName string) ([]FlightData, error) {
 	resp, err := resty.New().R().
 		SetResult(&result).
 		Get(url)
+
+	fmt.Println("Flight API response:", resp, err)
 
 	if err != nil {
 		return nil, err

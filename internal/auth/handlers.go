@@ -14,6 +14,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// @Summary Register a new user
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body auth.RegisterRequest true "Register info"
+// @Success 201 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Router /auth/register [post]
 func RegisterHandler(c *gin.Context) {
 	var req *RegisterRequest
 	req, err := binding.StrictBindJSON[RegisterRequest](c)
@@ -53,6 +61,14 @@ func RegisterHandler(c *gin.Context) {
 	response.Created(c, "User registered successfully", gin.H{"user_id": newUser.ID})
 }
 
+// @Summary Login user
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body auth.LoginRequest true "Login info"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Router /auth/login [post]
 func LoginHandler(c *gin.Context) {
 	var req *LoginRequest
 	req, err := binding.StrictBindJSON[LoginRequest](c)
@@ -84,6 +100,14 @@ func LoginHandler(c *gin.Context) {
 	response.Success(c, "Login successful", gin.H{"token": token})
 }
 
+// @Summary Request password reset
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body auth.PasswordResetRequest true "Password reset info"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Router /auth/password/reset/request [post]
 func PasswordResetRequestHandler(c *gin.Context) {
 	var req *PasswordResetRequest
 
@@ -102,8 +126,16 @@ func PasswordResetRequestHandler(c *gin.Context) {
 	// TODO: Implement password reset logic (e.g., send email with reset link)
 
 	response.Success(c, "Password reset request processed", gin.H{"message": "use this static code for password reset", "reset code": "123456"})
-	}
+}
 
+// @Summary Reset reset
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body auth.PasswordResetRequest true "Reset password info"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Router /auth/password/reset [post]
 func ResetPasswordRequestHandler(c *gin.Context) {
 	var req *ResetPasswordRequest
 
