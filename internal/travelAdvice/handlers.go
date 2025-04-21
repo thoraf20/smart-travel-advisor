@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/thoraf20/smart-travel-advisor/internal/db"
+	"github.com/thoraf20/smart-travel-advisor/internal/integrations"
 	"github.com/thoraf20/smart-travel-advisor/internal/models"
 	"github.com/thoraf20/smart-travel-advisor/pkg/binding"
 	"github.com/thoraf20/smart-travel-advisor/pkg/response"
@@ -29,14 +30,50 @@ func CreateTravelAdvice(c *gin.Context) {
 
 	cityJSON, _ := json.Marshal(req.Cities)
 
-	// Simulate response
-	adviceMock := map[string]interface{}{
-		"weather":  "sunny",
-		"flights":  "available",
-		"tips":     "Pack sunscreen and sunglasses",
-		"itinerary": []string{"Visit museums", "Beach day", "Local food tour"},
+	weather, err := integrations.GetWeather(req.Cities[0])
+
+	if err != nil {
+		weather = &integrations.WeatherResponse{
+			Weather: []struct {
+				Main        string "json:\"main\""
+				Description string "json:\"description\""
+			}{{Main: "Unavailable", Description: "Could not fetch weather"}},
+		}
 	}
-	adviceJSON, _ := json.Marshal(adviceMock)
+
+	flights, err := integrations.GetFlightsArrivingInCity(req.Cities[0]) // simulate with first city
+	var flightData []map[string]string
+
+	if err == nil {
+		for _, f := range flights {
+			flightData = append(flightData, map[string]string{
+				"airline":     f.Airline.Name,
+				"flight_no":   f.Flight.Number,
+				"from":        f.Departure.Airport,
+				"to":          f.Arrival.Airport,
+				"departure":   f.Departure.Time,
+				"arrival":     f.Arrival.Time,
+			})
+		}	
+	} else {
+		flightData = []map[string]string{
+			{"error": "Unable to fetch flights"},
+		}
+	}
+
+	adviceResponse := map[string]interface{}{
+		"weather":  map[string]interface{}{
+			"flights":  weather.Weather[0].Main,
+			"description":   weather.Weather[0].Description,
+			"temp": weather.Main.Temp,
+			"humidity": weather.Main.Humidity,
+		},
+		"flights":  flightData,
+		"tips":     "Dress accordingly 😎",
+		"itinerary": []string{"Explore local attractions", "Sample street food"},
+	}
+	
+	adviceJSON, _ := json.Marshal(adviceResponse)
 
 	advice := models.TravelAdvice{
 		ID:        uuid.New(),
@@ -56,7 +93,7 @@ func CreateTravelAdvice(c *gin.Context) {
 
 	response.Created(c, "Travel advice created", gin.H{
 		"advice_id": advice.ID,
-		"advice":    adviceMock,
+		"advice":    adviceResponse,
 	})
 }
 

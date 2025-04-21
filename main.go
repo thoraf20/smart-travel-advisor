@@ -14,6 +14,7 @@ import (
 	"github.com/thoraf20/smart-travel-advisor/internal/preferences"
 	traveladvice "github.com/thoraf20/smart-travel-advisor/internal/travelAdvice"
 	"github.com/thoraf20/smart-travel-advisor/internal/user"
+	cache "github.com/thoraf20/smart-travel-advisor/internal/cache"
 )
 
 func main() {
@@ -21,6 +22,7 @@ func main() {
 	config.LoadConfig()
 
 	db.InitDB()
+	cache.InitRedis()
 
 	r := gin.Default()
 
